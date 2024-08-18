@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 step2. 将 loadmd_plugin 文件夹打包为 zip 文件并将其安装至 wordpress
 
-step3. 在 worpress 后台为 `md 上传助手` 配置必要参数
+step3. 在 wordpress 后台为 `md 上传助手` 配置必要参数
 
 step4. 编辑 config.json 中的配置项
 

