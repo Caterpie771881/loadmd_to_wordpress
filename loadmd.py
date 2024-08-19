@@ -63,13 +63,22 @@ def yes_or_no(string, max_time:int=2, default:bool=False):
         if input_ == "n":
             return False
 
+def MyBool(value: str):
+    if value.lower() in ["t", "true", "1"]:
+        return True
+    if value.lower() in ["f", "false", "0"]:
+        return False
+    raise argparse.ArgumentTypeError(f"'{value}' can't change to bool")
+
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("-c", "--config",
+                       metavar='',
                        help="load you config")
-argparser.add_argument("--overwrite",
-                       help="overwrite exist file if add this option",
-                       action="store_true")
+argparser.add_argument("-ow", "--overwrite",
+                       metavar='TRUE/FALSE',
+                       help="overwrite exist file",
+                       type=MyBool)
 args = argparser.parse_args()
 
 # load config
@@ -168,9 +177,18 @@ print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
 
 for img in img_list:
     img_path = os.path.join(path, img)
-    if not args.overwrite and check_file(img, webshell_address, webshell_password, target):
-        if not yes_or_no(f"{img} has exist, do you want to overwrite it? (Y/N):"):
-            continue
+    # check if a file with the same name already exists
+    match args.overwrite:
+        case True:
+            pass
+        case False:
+            if check_file(img, webshell_address, webshell_password, target):
+                continue
+        case _:
+            if check_file(img, webshell_address, webshell_password, target):
+                if not yes_or_no(f"{img} has exist, do you want to overwrite it? (Y/N):"):
+                    continue
+    # upload the file
     if upload_file(img_path, webshell_address, webshell_password, target):
         continue
     if not yes_or_no("Do you want to countinue? (Y/N):"):
