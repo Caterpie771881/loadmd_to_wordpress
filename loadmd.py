@@ -6,6 +6,7 @@ import markdown
 import pymdownx
 import requests
 
+
 def upload_file(file_path, url, password, target):
     with open(file_path, 'rb') as f:
         files = {'uploaded_file': (file_path, f)}
@@ -15,18 +16,36 @@ def upload_file(file_path, url, password, target):
             data={
                 "password": password,
                 "target": target,
+                "command": "save",
                 }
             )
     message = response.headers['message']
-    #TODO: 添加各个 message 的处理逻辑, 细化 logging
-    #TODO: 检测是否有重名文件, 添加选项: 是否覆盖文件
     if message:
         if message == "ok":
             print(f"[*]upload \"{file_path}\" success")
-        else:
-            print(f"[!]fail to upload \"{file_path}\", error: {message}")
-    else:
-        print("[?]can't get webshell's answer, please check you config")
+            return True
+        print(f"[!]fail to upload \"{file_path}\", error: {message}")
+        return False
+    raise "can't get webshell's respond, please check your config and webshell"
+
+
+def check_file(filename, url, password, target):
+    response = requests.post(
+        url,
+        data={
+            "password": password,
+            "filename": filename,
+            "target": target,
+            "command": "check",
+            }
+    )
+    message = response.headers['message']
+    if message:
+        if message == "exist":
+            return True
+        return False
+    raise "can't get webshell's respond, please check your config and webshell"
+
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("-c", "--config", help="load you config")
@@ -125,6 +144,28 @@ with open(html_path, "w", encoding="utf-8") as file:
     file.write("\n<script>hljs.highlightAll();</script>",)
 print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
 
+def yes_or_no(string, max_time:int=2, default:bool=False):
+    if max_time > 0:
+        for _ in range(max_time):
+            input_ = input(string).lower()
+            if input_ == "y":
+                return True
+            if input_ == "n":
+                return False
+        return default
+    while True:
+        input_ = input(string).lower()
+        if input_ == "y":
+            return True
+        if input_ == "n":
+            return False
+
 for img in img_list:
     img_path = os.path.join(path, img)
-    upload_file(img_path, webshell_address, webshell_password, target)
+    if check_file(img, webshell_address, webshell_password, target):
+        if not yes_or_no(f"{img} has exist, do you want to overwrite it? (Y/N):"):
+            continue
+    if upload_file(img_path, webshell_address, webshell_password, target):
+        continue
+    if not yes_or_no("Do you want to countinue? (Y/N):"):
+        break
