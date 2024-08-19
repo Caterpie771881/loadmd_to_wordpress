@@ -47,8 +47,29 @@ def check_file(filename, url, password, target):
     raise "can't get webshell's respond, please check your config and webshell"
 
 
+def yes_or_no(string, max_time:int=2, default:bool=False):
+    if max_time > 0:
+        for _ in range(max_time):
+            input_ = input(string).lower()
+            if input_ == "y":
+                return True
+            if input_ == "n":
+                return False
+        return default
+    while True:
+        input_ = input(string).lower()
+        if input_ == "y":
+            return True
+        if input_ == "n":
+            return False
+
+
 argparser = argparse.ArgumentParser()
-argparser.add_argument("-c", "--config", help="load you config")
+argparser.add_argument("-c", "--config",
+                       help="load you config")
+argparser.add_argument("--overwrite",
+                       help="overwrite exist file if add this option",
+                       action="store_true")
 args = argparser.parse_args()
 
 # load config
@@ -144,25 +165,10 @@ with open(html_path, "w", encoding="utf-8") as file:
     file.write("\n<script>hljs.highlightAll();</script>",)
 print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
 
-def yes_or_no(string, max_time:int=2, default:bool=False):
-    if max_time > 0:
-        for _ in range(max_time):
-            input_ = input(string).lower()
-            if input_ == "y":
-                return True
-            if input_ == "n":
-                return False
-        return default
-    while True:
-        input_ = input(string).lower()
-        if input_ == "y":
-            return True
-        if input_ == "n":
-            return False
 
 for img in img_list:
     img_path = os.path.join(path, img)
-    if check_file(img, webshell_address, webshell_password, target):
+    if not args.overwrite and check_file(img, webshell_address, webshell_password, target):
         if not yes_or_no(f"{img} has exist, do you want to overwrite it? (Y/N):"):
             continue
     if upload_file(img_path, webshell_address, webshell_password, target):
