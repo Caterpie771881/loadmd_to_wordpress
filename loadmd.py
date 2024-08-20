@@ -139,7 +139,7 @@ def handling_markdown(markdown_path) -> str:
 
 def md_to_html(md_str: str, ouput_path: str):
     """将 md 文本转换为 html 后写入指定路径"""
-    html = markdown.markdown(file_str,extensions=[
+    html = markdown.markdown(md_str,extensions=[
         'markdown.extensions.extra',
         'markdown.extensions.fenced_code',
         'markdown.extensions.toc',
@@ -183,6 +183,25 @@ def upload_list(file_list: list):
             break
 
 
+def loadmd_from(path):
+    # 处理文件夹
+    if os.path.isdir(path):
+        img_list, markdown_name = analysis_folder(path)
+        markdown_path = os.path.join(path, markdown_name) + ".md"
+        html_path = os.path.join(path, markdown_name) + ".html"
+        file_str = handling_markdown(markdown_path)
+        md_to_html(file_str, html_path)
+        print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+        upload_list(img_list)
+    # 处理单文件
+    elif os.path.isfile(path) and path[-3:] == ".md":
+        markdown_path = path
+        html_path = markdown_path[:-3] + ".html"
+        file_str = handling_markdown(markdown_path)
+        md_to_html(file_str, html_path)
+        print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+
+
 argparser = argparse.ArgumentParser()
 argparser.add_argument("-c", "--config",
                        metavar='',
@@ -211,13 +230,9 @@ if args.config:
 else:
     raise "[!]please specify the config file path with [-c] or [--config]"
 
-#TODO: 添加单文件支持
-#TODO: 添加批量处理支持
-
-img_list, markdown_name = analysis_folder(path)
-markdown_path = os.path.join(path, markdown_name) + ".md"
-html_path = os.path.join(path, markdown_name) + ".html"
-file_str = handling_markdown(markdown_path)
-md_to_html(file_str, html_path)
-print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
-upload_list(img_list)
+if path is list:
+    # 批处理
+    for path_ in path:
+        loadmd_from(path_)
+else:
+    loadmd_from(path)
