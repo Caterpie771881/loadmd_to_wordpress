@@ -15,7 +15,7 @@ config.json             # 客户端配置示例
 License                 # 开源协议
 loadmd.py               # 客户端入口
 README.md               # 项目说明文件
-requirement.txt         # 客户端环境需求文件
+requirement.txt         # python 环境需求
 ```
 
 ## 配置文件说明
@@ -46,7 +46,7 @@ requirement.txt         # 客户端环境需求文件
 >
 > 脚本将会把 !\[img](img_01.jpg) 替换为
 >
-> !\[img](**https://www.example.com/myimg/**img_01.jpg)
+> !\[img](https://www.example.com/myimg/img_01.jpg)
 
 ### target
 
@@ -99,3 +99,13 @@ step5. 使用下面的命令来运行 markdown 转换脚本
 ```sh
 python loadmd.py -c config.json
 ```
+
+# 未来计划
+
+1. 添加功能: 流量加密, 引入时间戳防止重放攻击
+
+2. 插件添加 "导出 config.json" 功能
+
+3. 插件添加 "check webshell_address" 功能, 检查地址是否可用
+
+4. 添加功能: 服务端在导出 html 时自动上传至 wordpress 并创建文章草稿
