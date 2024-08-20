@@ -2,6 +2,66 @@
 
 该项目用于将本地的 markdown 文件快速迁移至 wordpress 系统
 
+# 项目说明
+
+## 目录结构
+
+```
+loadmd_plugin           # wordpress 插件文件夹
+ - loadmd_plugin.php    # 插件入口
+ - setting_page.php     # 设置页面
+ - webshell.php         # 实现了上传功能的 webshell
+config.json             # 客户端配置示例
+License                 # 开源协议
+loadmd.py               # 客户端入口
+README.md               # 项目说明文件
+requirement.txt         # 客户端环境需求文件
+```
+
+## 配置文件说明
+
+### path
+
+> 接受 3 种参数:
+>
+> 1.  存放了 markdown 与引用图片的文件夹
+> 2.  markdown 单文件
+> 3.  使用数组包含多个 1、2 类型参数
+
+### webshell
+
+> address
+>
+> 在 "md 上传助手" 中配置的 webshell 访问入口
+>
+> password
+>
+> 在 "md 上传助手" 中配置的 webshell 访问密码
+
+### img_src
+
+> markdown 访问引用图片时的 URL 前缀
+>
+> 如: 当该配置项为 "https://www.example.com/myimg/" 时
+>
+> 脚本将会把 !\[img](img_01.jpg) 替换为
+>
+> !\[img](**https://www.example.com/myimg/**img_01.jpg)
+
+### target
+
+> 服务器存放文章引用的图片的绝对路径
+
+### support
+
+> img_type
+>
+> 支持的图片格式
+>
+> languages
+>
+> 代码高亮中支持的语言(不支持的语言将会统一使用纯文本的高亮)
+
 # 使用方式
 
 step1. 安装 python 脚本所需库
