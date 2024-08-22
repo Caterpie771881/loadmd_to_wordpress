@@ -1,12 +1,11 @@
 import os
-import argparse
 import json
 import markdown
 import pymdownx
 import requests
 import time
+from utils.argsparser import args
 from utils.extensions import (
-    Extension,
     replace_img_address,
     fix_codeblock_indentation,
     fix_c_cpp,
@@ -74,14 +73,6 @@ def yes_or_no(string, max_time:int=2, default:bool=False):
         if input_ == "n":
             return False
 
-
-def MyBool(value: str):
-    if value.lower() in ["t", "true", "1"]:
-        return True
-    if value.lower() in ["f", "false", "0"]:
-        return False
-    raise argparse.ArgumentTypeError(f"'{value}' can't change to bool")
-
 #TODO: 添加流量加密功能, 引入时间戳校验防止 webshell 被重放攻击
 def encryption_password(password): ...
 
@@ -111,7 +102,7 @@ def analysis_folder(path) -> list:
     }
 
 
-def handling_markdown(markdown_path: str, extensions: list[Extension] = []) -> str:
+def handling_markdown(markdown_path: str, extensions: list = []) -> str:
     """处理 markdown 文件内容, 返回处理后的文本"""
     with open(markdown_path, "r", encoding="utf-8") as file:
         file_str = file.read()
@@ -120,7 +111,7 @@ def handling_markdown(markdown_path: str, extensions: list[Extension] = []) -> s
     return file_str
 
 
-def md_to_html(md_str: str, ouput_path: str, extensions: list[Extension] = []):
+def md_to_html(md_str: str, ouput_path: str, extensions: list = []):
     """将 md 文本转换为 html 后写入指定路径"""
     html = markdown.markdown(md_str,extensions=[
         'markdown.extensions.extra',
@@ -141,7 +132,7 @@ def upload_list(file_list: list):
     for file_name in file_list:
         file_path = os.path.join(path, file_name)
         # check if a file with the same name already exists
-        match args.overwrite:
+        match args.over_write:
             case True:
                 pass
             case False:
@@ -156,6 +147,14 @@ def upload_list(file_list: list):
             continue
         if not yes_or_no("Do you want to countinue? (Y/N):"):
             break
+
+
+def sniffer_imgs(markdown_path) -> list:
+    """嗅探单文件中引用的本地图片, 检查文件是否存在, 并返回路径列表"""
+    img_list = []
+    with open(markdown_path, "r", encoding="utf-8") as file:
+        file_str = file.read()
+    return img_list
 
 
 def loadmd_from_folder(path):
@@ -181,11 +180,21 @@ def loadmd_from_file(path):
     """当路径为单文件时的处理逻辑"""
     markdown_path = path
     html_path = markdown_path[:-3] + ".html"
-    file_str = handling_markdown(markdown_path, extensions=[
-        fix_codeblock_indentation,
-        fix_c_cpp,
-        delete_unsupport_languages(support_languages=support_languages),
-    ])
+    if args.sniffer:
+        img_list = sniffer_imgs(markdown_path)
+        file_str = handling_markdown(markdown_path, extensions=[
+            replace_img_address(img_src=img_src),
+            fix_codeblock_indentation,
+            fix_c_cpp,
+            delete_unsupport_languages(support_languages=support_languages),
+        ])
+        upload_list(img_list)
+    else:
+        file_str = handling_markdown(markdown_path, extensions=[
+            fix_codeblock_indentation,
+            fix_c_cpp,
+            delete_unsupport_languages(support_languages=support_languages),
+        ])
     md_to_html(file_str, html_path, extensions=[
         add_copy_support,
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
@@ -203,19 +212,6 @@ def loadmd_from(path):
     else:
         print(f"[!]非法路径: \"{path}\", 请检查配置文件")
 
-
-argparser = argparse.ArgumentParser()
-argparser.add_argument("-c", "--config",
-                       metavar='',
-                       help="load you config")
-argparser.add_argument("-ow", "--overwrite",
-                       metavar='TRUE/FALSE',
-                       help="overwrite exist file",
-                       type=MyBool)
-argparser.add_argument("--sniffer",
-                       help="open sniffer mode by this option",
-                       action="store_true")
-args = argparser.parse_args()
 
 # load config
 if args.config:
