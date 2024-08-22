@@ -24,9 +24,9 @@ requirement.txt         # python 环境需求
 
 > 接受 3 种参数:
 >
-> 1.  存放了 markdown 与引用图片的文件夹
-> 2.  markdown 单文件
-> 3.  使用数组包含多个 1、2 类型参数
+> 1.  存放了 markdown 与引用图片的文件夹, 如: "D://blog_01/"
+> 2.  markdown 单文件, 如: "D://blog_02.md"
+> 3.  使用数组包含多个 1/2 类型参数, 如: ["D://blog_01/", "D://blog_02.md"]
 
 ### webshell
 
@@ -62,7 +62,17 @@ requirement.txt         # python 环境需求
 >
 > 代码高亮中支持的语言(不支持的语言将会统一使用纯文本的高亮)
 
-# 使用方式
+## 客户端参数说明
+
+```
+-h, --help          获取帮助
+-c, --config        指定配置文件位置
+-ow, --overwrite    为 true 时强制覆写重名文件, 为 false 时强制不覆写重名文件
+--sniffer           添加此参数时开启 "嗅探模式"
+(嗅探模式: 仅对单文件 path 生效, 自动探查 md 引用的本地图片路径并进行改写、上传)
+```
+
+# 快速开始
 
 step1. 安装 python 脚本所需库
 
@@ -102,10 +112,10 @@ python loadmd.py -c config.json
 
 # 未来计划
 
-1. 添加功能: 流量加密, 引入时间戳防止重放攻击
+1. 添加功能: 引入时间戳防止重放攻击
 
 2. 插件添加 "导出 config.json" 功能
 
 3. 插件添加 "check webshell_address" 功能, 检查地址是否可用
 
-4. 添加功能: 服务端在导出 html 时自动上传至 wordpress 并创建文章草稿
+4. 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
