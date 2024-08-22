@@ -1,11 +1,19 @@
 import os
 import argparse
 import json
-import re
 import markdown
 import pymdownx
 import requests
 import time
+from utils.extensions import (
+    Extension,
+    replace_img_address,
+    fix_codeblock_indentation,
+    fix_c_cpp,
+    delete_unsupport_languages,
+    add_copy_support,
+    write_to_tail,
+)
 
 
 def upload_file(file_path, url, password, target):
@@ -103,41 +111,16 @@ def analysis_folder(path) -> list:
     }
 
 
-def handling_markdown(markdown_path) -> str:
+def handling_markdown(markdown_path: str, extensions: list[Extension] = []) -> str:
     """处理 markdown 文件内容, 返回处理后的文本"""
     with open(markdown_path, "r", encoding="utf-8") as file:
         file_str = file.read()
-
-        regex = r"!\[.*?\]\((?!http)(.*?)\)"
-        subst = f"![img]({img_src}\\1)"
-        file_str = re.sub(regex, subst, file_str, 0, re.MULTILINE)
-        regex = r"<img src=\"(?!http)(.*?)\"(.*?)/>"
-        subst = f"<img src=\"{img_src}\\1\"\\2/>"
-        file_str = re.sub(regex, subst, file_str, 0, re.MULTILINE)
-        print("[*]已替换图片地址")
-
-        regex = r"^ +```(.*)"
-        subst = "```\\1"
-        file_str = re.sub(regex, subst, file_str, 0, re.MULTILINE)
-        print("[*]已修复异常的代码块缩进")
-
-        regex = r"```c_cpp"
-        subst = "```cpp"
-        file_str = re.sub(regex, subst, file_str, 0, re.MULTILINE)
-        print("[*]已修复不规范的 'c_cpp' 标记")
-        
-        regex = r"^```(.+)"
-        def check_language(match: re.Match):
-            language = match.group(1)
-            if language not in support_languages:
-                language = ""
-            return f"```{language}"
-        file_str = re.sub(regex, check_language, file_str, 0, re.MULTILINE)
-        print("[*]已去除不支持的语言格式")
+        for extension in extensions:
+            file_str = extension.run(file_str)
     return file_str
 
 
-def md_to_html(md_str: str, ouput_path: str):
+def md_to_html(md_str: str, ouput_path: str, extensions: list[Extension] = []):
     """将 md 文本转换为 html 后写入指定路径"""
     html = markdown.markdown(md_str,extensions=[
         'markdown.extensions.extra',
@@ -146,19 +129,11 @@ def md_to_html(md_str: str, ouput_path: str):
         'pymdownx.mark',
         'pymdownx.tilde'])
 
-    regex = r"<pre><code(.*?)>"
-    num = 0
-    def add_copy_id(match: re.Match):
-        nonlocal num
-        element = f"<pre><code{match.group(1)} id=copy{num}>"
-        num += 1
-        return element
-    html = re.sub(regex, add_copy_id, html, 0, re.MULTILINE)
-    print("[*]已添加 copy 支持")
-
+    for extension in extensions:
+        html = extension.run(html)
+    
     with open(ouput_path, "w", encoding="utf-8") as file:
         file.write(html)
-        file.write("\n<script>hljs.highlightAll();</script>",)
 
 
 def upload_list(file_list: list):
@@ -177,29 +152,56 @@ def upload_list(file_list: list):
                     if not yes_or_no(f"{file_name} has exist, do you want to overwrite it? (Y/N):"):
                         continue
         # upload the file
-        if upload_file(file_name, webshell_address, webshell_password, target):
+        if upload_file(file_path, webshell_address, webshell_password, target):
             continue
         if not yes_or_no("Do you want to countinue? (Y/N):"):
             break
 
 
+def loadmd_from_folder(path):
+    """当路径为文件夹时的处理逻辑"""
+    img_list, markdown_name = analysis_folder(path)
+    markdown_path = os.path.join(path, markdown_name) + ".md"
+    html_path = os.path.join(path, markdown_name) + ".html"
+    file_str = handling_markdown(markdown_path, extensions=[
+        replace_img_address(img_src=img_src),
+        fix_codeblock_indentation,
+        fix_c_cpp,
+        delete_unsupport_languages(support_languages=support_languages),
+    ])
+    md_to_html(file_str, html_path, extensions=[
+        add_copy_support,
+        write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
+    ])
+    print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+    upload_list(img_list)
+
+
+def loadmd_from_file(path):
+    """当路径为单文件时的处理逻辑"""
+    markdown_path = path
+    html_path = markdown_path[:-3] + ".html"
+    file_str = handling_markdown(markdown_path, extensions=[
+        fix_codeblock_indentation,
+        fix_c_cpp,
+        delete_unsupport_languages(support_languages=support_languages),
+    ])
+    md_to_html(file_str, html_path, extensions=[
+        add_copy_support,
+        write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
+    ])
+    print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+
+
 def loadmd_from(path):
-    # 处理文件夹
     if os.path.isdir(path):
-        img_list, markdown_name = analysis_folder(path)
-        markdown_path = os.path.join(path, markdown_name) + ".md"
-        html_path = os.path.join(path, markdown_name) + ".html"
-        file_str = handling_markdown(markdown_path)
-        md_to_html(file_str, html_path)
-        print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
-        upload_list(img_list)
-    # 处理单文件
+        print(f"[*]正在处理文件夹: \"{path}\"")
+        loadmd_from_folder(path)
     elif os.path.isfile(path) and path[-3:] == ".md":
-        markdown_path = path
-        html_path = markdown_path[:-3] + ".html"
-        file_str = handling_markdown(markdown_path)
-        md_to_html(file_str, html_path)
-        print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+        print(f"[*]正在处理单文件: \"{path}\"")
+        loadmd_from_file(path)
+    else:
+        print(f"[!]非法路径: \"{path}\", 请检查配置文件")
 
 
 argparser = argparse.ArgumentParser()
@@ -210,6 +212,9 @@ argparser.add_argument("-ow", "--overwrite",
                        metavar='TRUE/FALSE',
                        help="overwrite exist file",
                        type=MyBool)
+argparser.add_argument("--sniffer",
+                       help="open sniffer mode by this option",
+                       action="store_true")
 args = argparser.parse_args()
 
 # load config
