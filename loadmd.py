@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import markdown
 import pymdownx
 import requests
@@ -12,6 +13,7 @@ from utils.extensions import (
     delete_unsupport_languages,
     add_copy_support,
     write_to_tail,
+    imgpath_to_imgname,
 )
 
 
@@ -150,10 +152,24 @@ def upload_list(file_list: list):
 
 
 def sniffer_imgs(markdown_path) -> list:
-    """嗅探单文件中引用的本地图片, 检查文件是否存在, 并返回路径列表"""
+    """嗅探单文件中引用的本地图片, 检查文件是否存在, 并返回绝对路径列表"""
     img_list = []
+    markdown_dir = os.path.dirname(markdown_path)
+
+    def find_imgs_by(regex):
+        nonlocal img_list
+        img_paths: list[str] = re.findall(regex, file_str)
+        for path in img_paths:
+            abspath = os.path.abspath(os.path.join(markdown_dir, path))
+            if os.path.isfile(abspath) and path.split('.')[-1] in support_img_type:
+                img_list.append(abspath)
+            else:
+                print(f"[?]文件不存在或文件格式不支持: {path}")
+    
     with open(markdown_path, "r", encoding="utf-8") as file:
         file_str = file.read()
+        find_imgs_by(r"!\[.*?\]\((?!http)(.*?)\)")
+        find_imgs_by(r"<img src=\"(?!http)(.*?)\".*?/>")
     return img_list
 
 
@@ -164,12 +180,12 @@ def loadmd_from_folder(path):
     html_path = os.path.join(path, markdown_name) + ".html"
     file_str = handling_markdown(markdown_path, extensions=[
         replace_img_address(img_src=img_src),
-        fix_codeblock_indentation,
-        fix_c_cpp,
+        fix_codeblock_indentation(),
+        fix_c_cpp(),
         delete_unsupport_languages(support_languages=support_languages),
     ])
     md_to_html(file_str, html_path, extensions=[
-        add_copy_support,
+        add_copy_support(),
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
     ])
     print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
@@ -180,23 +196,27 @@ def loadmd_from_file(path):
     """当路径为单文件时的处理逻辑"""
     markdown_path = path
     html_path = markdown_path[:-3] + ".html"
+    # 嗅探模式
     if args.sniffer:
         img_list = sniffer_imgs(markdown_path)
+        print(img_list)
         file_str = handling_markdown(markdown_path, extensions=[
+            imgpath_to_imgname(),
             replace_img_address(img_src=img_src),
-            fix_codeblock_indentation,
-            fix_c_cpp,
+            fix_codeblock_indentation(),
+            fix_c_cpp(),
             delete_unsupport_languages(support_languages=support_languages),
         ])
         upload_list(img_list)
+    # 普通模式
     else:
         file_str = handling_markdown(markdown_path, extensions=[
-            fix_codeblock_indentation,
-            fix_c_cpp,
+            fix_codeblock_indentation(),
+            fix_c_cpp(),
             delete_unsupport_languages(support_languages=support_languages),
         ])
     md_to_html(file_str, html_path, extensions=[
-        add_copy_support,
+        add_copy_support(),
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
     ])
     print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
