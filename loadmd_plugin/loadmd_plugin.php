@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: markdown 上传助手
-Plugin URI: http://https://github.com/Caterpie771881/loadmd
+Plugin URI: https://github.com/Caterpie771881/loadmd_to_wordpress
 Description: 用于配合本地脚本进行 markdown 文章的上传
 Version: 0.1
 Author: caterpie

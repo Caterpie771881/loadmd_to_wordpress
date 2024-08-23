@@ -10,9 +10,11 @@
                 <td>
                     <input type="text" name="webshell_address" id="webshell_address"
                     value="<?php echo get_option('webshell_address'); ?>"
-                    style="width:100%">
+                    style="width:100%;max_width:500px">
                 </td>
-                //TODO: 增加 check 功能
+                <td>
+                    <button type="button" onclick="click_check_address_button()" id="check_address_button">check</button>
+                </td>
             </tr>
             <tr valign="top">
                 <th scope="row">
@@ -20,7 +22,8 @@
                 </th>
                 <td>
                     <input type="password" name="webshell_password" id="webshell_password"
-                    value="<?php echo get_option('webshell_password'); ?>">
+                    value="<?php echo get_option('webshell_password'); ?>"
+                    style="width:100%;max_width:500px">
                 </td>
                 <td>
                     <button type="button" onclick="click_password_button()" id="password_button">show</button>
@@ -39,5 +42,16 @@
         let type = document.getElementById('webshell_password').type;
         document.getElementById('webshell_password').type = type=='password'?'text':'password';
         document.getElementById('password_button').innerHTML = type=='password'?'hide':'show';
+    }
+    function click_check_address_button(params) {
+        let address = document.getElementById('webshell_address').value;
+        fetch(address)
+        .then( (resp) => resp.headers )
+        .then( (data) => {
+            if ( data.get('message') == "please enter password" )
+                alert('该地址能正常访问');
+            else
+                alert('似乎无法到达该地址, 请检查');
+        } )
     }
 </script>
