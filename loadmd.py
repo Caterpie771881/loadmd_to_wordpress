@@ -19,6 +19,7 @@ from utils.extensions import (
 
 def upload_file(file_path, url, password, target):
     """与服务端交互, 进行单文件上传"""
+    print(file_path)
     with open(file_path, 'rb') as f:
         files = {'uploaded_file': (file_path, f)}
         response = requests.post(
@@ -79,7 +80,7 @@ def yes_or_no(string, max_time:int=2, default:bool=False):
 def encryption_password(password): ...
 
 
-def analysis_folder(path) -> list:
+def analysis_folder(path) -> tuple:
     """解析路径下的 md 文件与图片文件情况"""
     img_list = []
     markdown_name = ''
@@ -98,10 +99,7 @@ def analysis_folder(path) -> list:
                     img_list.append(file_name)
     if markdown_name == '':
         raise "markdown file not found"
-    return {
-        "img_list": img_list,
-        "markdown_name": markdown_name
-    }
+    return img_list, markdown_name
 
 
 def handling_markdown(markdown_path: str, extensions: list = []) -> str:
@@ -129,10 +127,10 @@ def md_to_html(md_str: str, ouput_path: str, extensions: list = []):
         file.write(html)
 
 
-def upload_list(file_list: list):
+def upload_list(file_list: list, base_path: str):
     """尝试上传列表中的所有文件, 上传之前检查是否存在同名文件"""
     for file_name in file_list:
-        file_path = os.path.join(path, file_name)
+        file_path = os.path.join(base_path, file_name)
         # check if a file with the same name already exists
         match args.over_write:
             case True:
@@ -190,7 +188,7 @@ def loadmd_from_folder(path):
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
     ])
     print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
-    upload_list(img_list)
+    upload_list(img_list, path)
 
 
 def loadmd_from_file(path):
@@ -210,7 +208,7 @@ def loadmd_from_file(path):
             replace_img_address(img_src=img_src),
             ] + normal_mode_extensions
         )
-        upload_list(img_list)
+        upload_list(img_list, path)
     # normal mode
     else:
         file_str = handling_markdown(markdown_path, extensions=normal_mode_extensions)
@@ -250,7 +248,7 @@ if args.config:
 else:
     raise "[!]please specify the config file path with [-c] or [--config]"
 
-if path is list:
+if isinstance(path, list):
     # 批处理
     for path_ in path:
         loadmd_from(path_)

