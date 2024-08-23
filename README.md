@@ -67,7 +67,7 @@ requirement.txt         # python 环境需求
 ```
 -h, --help          获取帮助
 -c, --config        指定配置文件位置
--ow, --overwrite    为 true 时强制覆写重名文件, 为 false 时强制不覆写重名文件
+-ow, --over-write    为 true 时强制覆写重名文件, 为 false 时强制不覆写重名文件
 --sniffer           添加此参数时开启 "嗅探模式"
 (嗅探模式: 仅对单文件 path 生效, 自动探查 md 引用的本地图片路径并进行改写、上传)
 ```
