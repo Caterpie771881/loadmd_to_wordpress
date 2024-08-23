@@ -90,11 +90,11 @@ def analysis_folder(path) -> list:
                 file_type = file_name.split('.')[-1]
                 # get markdown_name
                 if file_type == "md":
-                    print(f"[*]find a markdown file:{file_name}")
+                    print(f"[*]find markdown file:{file_name}")
                     markdown_name = file_name[:-3]
                 # get img_list
                 elif file_type in support_img_type:
-                    print(f"[*]find an image file:{file_name}")
+                    print(f"[*]find image file:{file_name}")
                     img_list.append(file_name)
     if markdown_name == '':
         raise "markdown file not found"
@@ -163,6 +163,7 @@ def sniffer_imgs(markdown_path) -> list:
             abspath = os.path.abspath(os.path.join(markdown_dir, path))
             if os.path.isfile(abspath) and path.split('.')[-1] in support_img_type:
                 img_list.append(abspath)
+                print(f"[*]sniff img: {abspath}")
             else:
                 print(f"[?]文件不存在或文件格式不支持: {path}")
     
@@ -196,25 +197,23 @@ def loadmd_from_file(path):
     """当路径为单文件时的处理逻辑"""
     markdown_path = path
     html_path = markdown_path[:-3] + ".html"
-    # 嗅探模式
+    normal_mode_extensions = [
+        fix_codeblock_indentation(),
+        fix_c_cpp(),
+        delete_unsupport_languages(support_languages=support_languages),
+    ]
+    # sniffer mode
     if args.sniffer:
         img_list = sniffer_imgs(markdown_path)
-        print(img_list)
         file_str = handling_markdown(markdown_path, extensions=[
             imgpath_to_imgname(),
             replace_img_address(img_src=img_src),
-            fix_codeblock_indentation(),
-            fix_c_cpp(),
-            delete_unsupport_languages(support_languages=support_languages),
-        ])
+            ] + normal_mode_extensions
+        )
         upload_list(img_list)
-    # 普通模式
+    # normal mode
     else:
-        file_str = handling_markdown(markdown_path, extensions=[
-            fix_codeblock_indentation(),
-            fix_c_cpp(),
-            delete_unsupport_languages(support_languages=support_languages),
-        ])
+        file_str = handling_markdown(markdown_path, extensions=normal_mode_extensions)
     md_to_html(file_str, html_path, extensions=[
         add_copy_support(),
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
