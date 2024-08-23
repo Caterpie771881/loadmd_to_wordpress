@@ -7,15 +7,19 @@
 ## 目录结构
 
 ```
-loadmd_plugin           # wordpress 插件文件夹
+loadmd_plugin
  - loadmd_plugin.php    # 插件入口
  - setting_page.php     # 设置页面
  - webshell.php         # 实现了上传功能的 webshell
+utils
+ - argsparser.py        # 负责解析命令行参数
+ - extensions.py        # 文本处理扩展
+.gitignore
 config.json             # 客户端配置示例
-License                 # 开源协议
+License
 loadmd.py               # 客户端入口
-README.md               # 项目说明文件
-requirement.txt         # python 环境需求
+README.md
+requirement.txt
 ```
 
 ## 配置文件说明
@@ -116,6 +120,6 @@ python loadmd.py -c config.json
 
 2. 插件添加 "导出 config.json" 功能
 
-3. 插件添加 "check webshell_address" 功能, 检查地址是否可用
+3. ~~插件添加 "check webshell_address" 功能, 检查地址是否可用~~ (已实现)
 
 4. 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
