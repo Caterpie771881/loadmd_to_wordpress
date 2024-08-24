@@ -163,7 +163,7 @@ def sniffer_imgs(markdown_path) -> list:
                 img_list.append(abspath)
                 print(f"[*]sniff img: {abspath}")
             else:
-                print(f"[?]文件不存在或文件格式不支持: {path}")
+                print(f"[?]The file does not exist or the file format is not supported: {path}")
     
     with open(markdown_path, "r", encoding="utf-8") as file:
         file_str = file.read()
@@ -221,13 +221,13 @@ def loadmd_from_file(path):
 
 def loadmd_from(path):
     if os.path.isdir(path):
-        print(f"[*]正在处理文件夹: \"{path}\"")
+        print(f"[*]Processing folder: \"{path}\"")
         loadmd_from_folder(path)
     elif os.path.isfile(path) and path[-3:] == ".md":
-        print(f"[*]正在处理单文件: \"{path}\"")
+        print(f"[*]Processing file: \"{path}\"")
         loadmd_from_file(path)
     else:
-        print(f"[!]非法路径: \"{path}\", 请检查配置文件")
+        print(f"[!]Illegal path: \"{path}\", please check the config")
 
 
 # load config
