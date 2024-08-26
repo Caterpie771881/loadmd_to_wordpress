@@ -48,7 +48,7 @@
         fetch(address)
         .then( (resp) => resp.headers )
         .then( (data) => {
-            if ( data.get('message') == "please enter password" )
+            if ( data.get('message') == "please enter password and key" )
                 alert('该地址能正常访问');
             else
                 alert('似乎无法到达该地址, 请检查');

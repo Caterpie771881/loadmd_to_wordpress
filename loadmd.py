@@ -4,7 +4,6 @@ import re
 import markdown
 import pymdownx
 import requests
-import time
 from utils.argsparser import args
 from utils.extensions import (
     replace_img_address,
@@ -15,11 +14,12 @@ from utils.extensions import (
     write_to_tail,
     imgpath_to_imgname,
 )
+import utils.crypto
 
 
 def upload_file(file_path, url, password, target):
     """与服务端交互, 进行单文件上传"""
-    print(file_path)
+    password, key = utils.crypto.encryption_password(password)
     with open(file_path, 'rb') as f:
         files = {'uploaded_file': (file_path, f)}
         response = requests.post(
@@ -27,6 +27,7 @@ def upload_file(file_path, url, password, target):
             files=files,
             data={
                 "password": password,
+                "key": key,
                 "target": target,
                 "command": "save",
                 }
@@ -43,10 +44,12 @@ def upload_file(file_path, url, password, target):
 
 def check_file(filename, url, password, target):
     """与服务端交互, 检查指定路径下是否存在与 filename 同名文件"""
+    password, key = utils.crypto.encryption_password(password)
     response = requests.post(
         url,
         data={
             "password": password,
+            "key": key,
             "filename": filename,
             "target": target,
             "command": "check",
@@ -56,7 +59,9 @@ def check_file(filename, url, password, target):
     if message:
         if message == "exist":
             return True
-        return False
+        elif message == "not exist":
+            return False
+        raise Exception(f"[!]fail to check file \"{filename}\", error: {message}")
     raise "can't get webshell's respond, please check your config and webshell"
 
 
@@ -75,9 +80,6 @@ def yes_or_no(string, max_time:int=2, default:bool=False):
             return True
         if input_ == "n":
             return False
-
-#TODO: 添加流量加密功能, 引入时间戳校验防止 webshell 被重放攻击
-def encryption_password(password): ...
 
 
 def analysis_folder(path) -> tuple:
