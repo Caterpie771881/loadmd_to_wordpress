@@ -4,6 +4,8 @@
 
 # 项目说明
 
+该项目支持 python 3.10 及以上版本
+
 ## 目录结构
 
 ```
@@ -71,6 +73,7 @@ requirement.txt
 ```
 -h, --help          获取帮助
 -c, --config        指定配置文件位置
+-p, --path          强制指定 markdown 文件/文件夹路径(会覆盖 config 的配置)
 -ow, --over-write   为 true 时强制覆写重名文件, 为 false 时强制不覆写重名文件
 --sniffer           添加此参数时开启 "嗅探模式"
 (嗅探模式: 仅对单文件 path 生效, 自动探查 md 引用的本地图片路径并进行改写、上传)
@@ -78,7 +81,7 @@ requirement.txt
 
 # 快速开始
 
-step1. 安装 python 脚本所需库
+step1. 使用 python3.10+ 版本, 并安装脚本所需库
 
 ```sh
 pip install -r requirements.txt

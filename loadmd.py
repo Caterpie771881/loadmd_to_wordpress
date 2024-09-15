@@ -250,6 +250,9 @@ if args.config:
 else:
     raise "[!]please specify the config file path with [-c] or [--config]"
 
+if args.path:
+    path = args.path
+
 if isinstance(path, list):
     # 批处理
     for path_ in path:

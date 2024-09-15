@@ -11,6 +11,9 @@ argparser = argparse.ArgumentParser()
 argparser.add_argument("-c", "--config",
                        metavar='',
                        help="load you config")
+argparser.add_argument("-p", "--path",
+                       metavar='',
+                       help="force specified md path")
 argparser.add_argument("-ow", "--over-write",
                        metavar='TRUE/FALSE',
                        help="overwrite exist file",
