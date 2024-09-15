@@ -1,5 +1,5 @@
 {
-    "path": "/path/for/markdown_folder",
+    "path": "/path/for/markdown",
     "webshell": {
       "address": "https://address/for/webshell",
       "password": "password"

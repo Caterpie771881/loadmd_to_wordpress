@@ -34,7 +34,7 @@
             <input type="submit" class="button-primary" value="<?php _e('保存设置') ?>">
         </p>
     </form>
-    //TODO: 导出 config.json
+    <button type="button" class="button-primary" onclick="export_config()">导出配置文件</button>
 </div>
 
 <script>
@@ -53,5 +53,28 @@
             else
                 alert('似乎无法到达该地址, 请检查');
         } )
+    }
+    function export_config() {
+        let config = 
+`{
+    "path": "/path/for/markdown",
+    "webshell": {
+      "address": "${document.getElementById('webshell_address').value}",
+      "password": "${document.getElementById('webshell_password').value}"
+    },
+    "img_src": "http://you_domain/myimgs/",
+    "target": "/path/to/store/imgs",
+    "support": {
+      "img_type": [],
+      "languages": []
+    }
+}`;
+        let a_tag = document.createElement('a');
+        a_tag.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(config));
+        a_tag.setAttribute('download', 'config.json');
+        a_tag.style.display = 'none';
+        document.body.appendChild(a_tag);
+        a_tag.click();
+        document.body.removeChild(a_tag);
     }
 </script>
