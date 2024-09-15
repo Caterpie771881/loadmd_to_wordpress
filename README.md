@@ -120,7 +120,7 @@ python loadmd.py -c config.json
 
 1. ~~添加功能: 引入时间戳防止重放攻击~~ (已实现)
 
-2. 插件添加 "导出 config.json" 功能
+2. ~~插件添加 "导出 config.json" 功能~~ (已实现)
 
 3. ~~插件添加 "check webshell_address" 功能, 检查地址是否可用~~ (已实现)
 
