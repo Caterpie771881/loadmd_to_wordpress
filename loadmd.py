@@ -120,7 +120,8 @@ def md_to_html(md_str: str, ouput_path: str, extensions: list = []):
         'markdown.extensions.fenced_code',
         'markdown.extensions.toc',
         'pymdownx.mark',
-        'pymdownx.tilde'])
+        'pymdownx.tilde',
+        'pymdownx.tasklist'])
 
     for extension in extensions:
         html = extension.run(html)
