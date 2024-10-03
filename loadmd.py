@@ -39,7 +39,7 @@ def upload_file(file_path, url, password, target):
             return True
         print(f"[!]fail to upload \"{file_path}\", error: {message}")
         return False
-    raise "can't get webshell's respond, please check your config and webshell"
+    raise ConnectionError("can't get webshell's respond, please check your config and webshell")
 
 
 def check_file(filename, url, password, target):
@@ -62,7 +62,7 @@ def check_file(filename, url, password, target):
         elif message == "not exist":
             return False
         raise Exception(f"[!]fail to check file \"{filename}\", error: {message}")
-    raise "can't get webshell's respond, please check your config and webshell"
+    raise ConnectionError("can't get webshell's respond, please check your config and webshell")
 
 
 def yes_or_no(string, max_time:int=2, default:bool=False):
@@ -100,7 +100,7 @@ def analysis_folder(path) -> tuple:
                     print(f"[*]find image file:{file_name}")
                     img_list.append(file_name)
     if markdown_name == '':
-        raise "markdown file not found"
+        raise Exception("markdown file not found")
     return img_list, markdown_name
 
 
@@ -247,9 +247,9 @@ if args.config:
         support_languages = config["support"]["languages"]
         print("[*]load config success")
     except:
-        raise "[!]fail to load config"
+        raise Exception("[!]fail to load config")
 else:
-    raise "[!]please specify the config file path with [-c] or [--config]"
+    raise Exception("[!]please specify the config file path with [-c] or [--config]")
 
 if args.path:
     path = args.path
