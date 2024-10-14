@@ -122,10 +122,10 @@ python loadmd.py -c config.json
 
 # 未来计划
 
-1. ~~添加功能: 引入时间戳防止重放攻击~~ (已实现)
+- [x] 添加功能: 引入时间戳防止重放攻击
 
-2. ~~插件添加 "导出 config.json" 功能~~ (已实现)
+- [x] 插件添加 "导出 config.json" 功能
 
-3. ~~插件添加 "check webshell_address" 功能, 检查地址是否可用~~ (已实现)
+- [x] 插件添加 "check webshell_address" 功能, 检查地址是否可用
 
-4. 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
+- [ ] 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
