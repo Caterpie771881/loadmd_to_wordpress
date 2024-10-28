@@ -69,6 +69,20 @@ loadmd_to_wordpress
 >
 > 代码高亮中支持的语言(不支持的语言将会统一使用纯文本的高亮)
 
+### restapi
+
+> website
+>
+> 网站地址或者能够触发 restapi 的地址
+>
+> user
+>
+> 用户名
+>
+> token
+>
+> 对应用户的 restapi token
+
 ## 客户端参数说明
 
 ```
@@ -78,6 +92,7 @@ loadmd_to_wordpress
 -ow, --over-write   为 true 时强制覆写重名文件, 为 false 时强制不覆写重名文件
 --sniffer           添加此参数时开启 "嗅探模式"
 (嗅探模式: 仅对单文件 path 生效, 自动探查 md 引用的本地图片路径并进行改写、上传)
+--submit            添加此参数时自动创建文章草稿, 也可通过指定文章 id 来编辑已有文章
 ```
 
 # 快速开始
@@ -128,4 +143,6 @@ python loadmd.py -c config.json
 
 - [x] 插件添加 "check webshell_address" 功能, 检查地址是否可用
 
-- [ ] 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
+- [x] 添加功能: 客户端在导出 html 时自动上传至 wordpress 并创建文章草稿
+
+- [ ] 将插件接口改为 restapi 形式
