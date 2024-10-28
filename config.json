@@ -4,7 +4,7 @@
       "address": "https://address/for/webshell",
       "password": "password"
     },
-    "img_src": "http://you_domain/myimgs/",
+    "img_src": "https://you_domain/myimgs/",
     "target": "/path/to/store/imgs",
     "support": {
       "img_type": [],

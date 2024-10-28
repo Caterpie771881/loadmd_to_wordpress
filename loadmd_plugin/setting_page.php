@@ -55,20 +55,25 @@
         } )
     }
     function export_config() {
-        let config = 
-`{
-    "path": "/path/for/markdown",
-    "webshell": {
-      "address": "${document.getElementById('webshell_address').value}",
-      "password": "${document.getElementById('webshell_password').value}"
-    },
-    "img_src": "http://you_domain/myimgs/",
-    "target": "/path/to/store/imgs",
-    "support": {
-      "img_type": [],
-      "languages": []
-    }
-}`;
+        let config = {
+            "path": "/path/for/markdown",
+            "webshell": {
+                "address": document.getElementById('webshell_address').value,
+                "password": document.getElementById('webshell_password').value,
+            },
+            "img_src": "https://you_domain/myimgs/",
+            "target": "/path/to/store/imgs",
+            "support": {
+                "img_type": [],
+                "languages": [],
+            },
+            "restapi": {
+                "website": "https://you_website",
+                "user": "username",
+                "token": "token",
+            },
+        };
+        config = JSON.dumps(config);
         let a_tag = document.createElement('a');
         a_tag.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(config));
         a_tag.setAttribute('download', 'config.json');
