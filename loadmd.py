@@ -175,6 +175,58 @@ def sniffer_imgs(markdown_path) -> list:
     return img_list
 
 
+def submit_work(path: str):                                                                                                              
+    def add_draft(url: str, title: str, content: str):
+        """通过 restapi 发布文章草稿"""
+        resp = requests.post(
+            url=url.strip('/')+"/wp-json/wp/v2/posts",
+            headers={
+                "Authorization": utils.crypto.authorization(
+                    restapi_user,
+                    restapi_token
+                ),
+                "Content-Type": "application/json"
+            },
+            data=json.dumps({
+                "title": title,
+                "content": content,
+                "status": "draft",
+            })
+        )
+        if resp.ok:
+            print(f"[*]已发表草稿 {title}")
+    def edit_post(url: str, post_id: int, options: dict):
+        """通过 restapi 修改文章内容"""
+        resp = requests.put(
+            url=url.strip('/')+f"/wp-json/wp/v2/posts/{post_id}",
+            headers={
+                "Authorization": utils.crypto.authorization(
+                    restapi_user,
+                    restapi_token
+                ),
+                "Content-Type": "application/json"
+            },
+            data=json.dumps(options)
+        )
+        if resp.ok:
+            print(f"[*]已修改文章 {options['title']}")
+    title, _ = os.path.splitext(os.path.basename(path))
+    with open(path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    if isinstance(args.submit, int):
+        edit_post(
+            url=restapi_website,
+            post_id=args.submit,
+            options={'title':title, 'content':content}
+        )
+    elif args.submit:
+        add_draft(
+            url=restapi_website,
+            title=title,
+            content=content
+        )
+
+
 def loadmd_from_folder(path):
     """当路径为文件夹时的处理逻辑"""
     img_list, markdown_name = analysis_folder(path)
@@ -192,6 +244,7 @@ def loadmd_from_folder(path):
     ])
     print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
     upload_list(img_list, path)
+    submit_work(html_path)
 
 
 def loadmd_from_file(path):
@@ -220,6 +273,7 @@ def loadmd_from_file(path):
         write_to_tail(word="\n<script>hljs.highlightAll();</script>"),
     ])
     print(f"[*]\"{markdown_path}\" => \"{html_path}\"")
+    submit_work(html_path)
 
 
 def loadmd_from(path):
@@ -235,21 +289,26 @@ def loadmd_from(path):
 
 # load config
 if args.config:
-    try:
-        config_file = open(args.config, "r", encoding="utf-8")
-        config = json.loads(config_file.read())
-        path = config["path"]
-        webshell_address = config["webshell"]["address"]
-        webshell_password = config["webshell"]["password"]
-        img_src = config["img_src"]
-        target = config["target"]
-        support_img_type = config["support"]["img_type"]
-        support_languages = config["support"]["languages"]
-        print("[*]load config success")
-    except:
-        raise Exception("[!]fail to load config")
+    config_path = args.config
 else:
-    raise Exception("[!]please specify the config file path with [-c] or [--config]")
+    config_path = "config.json"
+    print("[!]please specify the config file path with [-c] or [--config]")
+try:
+    config_file = open(config_path, "r", encoding="utf-8")
+    config = json.loads(config_file.read())
+    path = config["path"]
+    webshell_address = config["webshell"]["address"]
+    webshell_password = config["webshell"]["password"]
+    img_src = config["img_src"]
+    target = config["target"]
+    support_img_type = config["support"]["img_type"]
+    support_languages = config["support"]["languages"]
+    restapi_website = config["restapi"]["website"]
+    restapi_user = config["restapi"]["user"]
+    restapi_token = config["restapi"]["token"]
+    print("[*]load config success")
+except:
+    raise Exception("[!]fail to load config")
 
 if args.path:
     path = args.path

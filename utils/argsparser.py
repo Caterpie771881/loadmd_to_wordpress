@@ -21,4 +21,10 @@ argparser.add_argument("-ow", "--over-write",
 argparser.add_argument("--sniffer",
                        help="open sniffer mode by this option",
                        action="store_true")
+argparser.add_argument("--submit",
+                       default=False,
+                       nargs='?',
+                       const=True,
+                       help="automatically add drafts if this option is turned on",
+                       type=int)
 args = argparser.parse_args()

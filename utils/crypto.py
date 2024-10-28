@@ -26,3 +26,9 @@ def encryption_password(password: str) -> tuple[str, str]:
     password = base64_encode(f"{base64_encode(password)}@{timestamp}")
     key = ''.join(str(i) for i in random.randbytes(8))
     return base64_encode(rc4(password, key)), key
+
+
+def authorization(username: str, token: str) -> str:
+    def base64_encode(s: str):
+        return base64.b64encode(s.encode()).decode()
+    return "Basic " + base64_encode(f"{username}:{token}")

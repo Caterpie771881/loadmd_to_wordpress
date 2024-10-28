@@ -9,5 +9,10 @@
     "support": {
       "img_type": [],
       "languages": []
+    },
+    "restapi": {
+      "website": "https://you_website",
+      "user": "username",
+      "token": "token"
     }
 }
